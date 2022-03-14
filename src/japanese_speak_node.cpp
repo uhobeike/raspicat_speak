@@ -14,12 +14,14 @@
  *limitations under the License.
  */
 
-#include <ros/ros.h>
+#include "raspicat_speak/japanese_speak.hpp"
 
 int main(int argc, char **argv) {
   ros::init(argc, argv, "japanese_speak");
   ros::NodeHandle nh;
   ros::NodeHandle pnh("~");
+
+  raspicat_speak::japanese_speak jsk;
 
   // If there is only one thread, the timer callback may not work well.
   ros::AsyncSpinner spinner(pnh.param("num_callback_threads", 4));

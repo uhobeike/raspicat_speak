@@ -19,6 +19,7 @@
 #include <topic_tools/shape_shifter.h>
 
 #include <boost/regex.hpp>
+#include <mutex>
 
 namespace raspicat_speak {
 
@@ -33,10 +34,16 @@ private:
   bool isSubscribed(std::string const &topic) const;
   void speak();
   void speakControl();
+  void checkPriority(std::set<std::string>);
   void run();
+
+  void getSpeakList();
+
+  XmlRpc::XmlRpcValue speak_list;
 
   u_int16_t num_subscribers_;
   std::set<std::string> currently_registered_topics;
+  std::set<std::string> speak_now;
   std::vector<std::string> speak_list_topics;
   bool regex;
 
