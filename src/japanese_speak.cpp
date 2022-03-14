@@ -80,15 +80,18 @@ bool japanese_speak::checkSubscribeTopics(std::string const &topic) {
 void japanese_speak::getSpeakList() {
   ros::NodeHandle pnh("~");
   pnh.getParam("topics", speak_list);
-  pnh.getParam("regex_topics", speak_list);
+  // pnh.getParam("regex_topics", speak_list);
   ROS_ASSERT(speak_list.getType() == XmlRpc::XmlRpcValue::TypeArray);
   ROS_INFO("member size: %i", (int)speak_list.size());
 
-  for (std::pair<const std::__cxx11::string, XmlRpc::XmlRpcValue> &list :
-       speak_list) {
-    list.first;
-  }
-}
+  // for (std::pair<const std::__cxx11::string, XmlRpc::XmlRpcValue> &list :
+  //      speak_list) {
+  // std::cout << list.second["topic"] << "\n";
+  // }
+
+  std::string topic = static_cast<std::string>(speak_list[0]["topic"]);
+  ROS_INFO("%s", topic.c_str());
+} // namespace raspicat_speak
 
 void japanese_speak::run() {
   if (regex) {
