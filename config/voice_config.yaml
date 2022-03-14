@@ -1,0 +1,11 @@
+voice_config:
+  - additional-half-tone:
+    value: 1.0
+  - all-pass-constant:
+    value: 0.55
+  - speech-speed-rate:
+    value: 1.0
+  - voice_interval:
+    value: 1.0
+  - voice_model:
+    value: "mei_normal.htsvoice"
