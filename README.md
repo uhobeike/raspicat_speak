@@ -15,7 +15,7 @@ source ~/catkin_ws/devel/setup.bash
 
 roscd raspicat_speak/scripts && ./install.sh
 ```
-
+ 
 ## How to use
 
 [speak_list.yaml](./config/speak_list.yaml)にトリガーとなるtopicと喋らせたい日本語を設定します。
