@@ -42,23 +42,24 @@ private:
   void getSpeakList();
   void getVoiceConfig();
 
+  ros::NodeHandle &nh_, &pnh_;
   ros::Timer check_master_timer_;
 
-  XmlRpc::XmlRpcValue speak_list_param;
-  XmlRpc::XmlRpcValue voice_config_param;
-  std::map<std::string, speak_list> speak_list_map;
-  voice_config voc;
+  XmlRpc::XmlRpcValue speak_list_param_;
+  XmlRpc::XmlRpcValue voice_config_param_;
+  std::map<std::string, speak_list> speak_list_map_;
+  voice_config voc_;
 
-  u_int16_t num_subscribers_;
-  std::set<std::string> currently_registered_topics;
-  std::set<std::string> speak_now;
-  std::vector<std::string> speak_list_topics;
-  bool regex;
+  std::set<std::string> currently_registered_topics_;
+  std::set<std::string> speak_now_;
+  std::vector<std::string> speak_list_topics_;
+  bool regex_;
 
-  std::mutex mtx;
+  std::mutex mtx_;
 
 public:
-  japanese_speak();
+  japanese_speak(ros::NodeHandle &nodeHandle,
+                 ros::NodeHandle &private_nodeHandle);
   ~japanese_speak();
 };
 } // namespace raspicat_speak

@@ -21,7 +21,7 @@ int main(int argc, char **argv) {
   ros::NodeHandle nh;
   ros::NodeHandle pnh("~");
 
-  raspicat_speak::japanese_speak jsk;
+  raspicat_speak::japanese_speak jsk(nh, pnh);
 
   // If there is only one thread, the timer callback may not work well.
   ros::AsyncSpinner spinner(pnh.param("num_callback_threads", 4));
