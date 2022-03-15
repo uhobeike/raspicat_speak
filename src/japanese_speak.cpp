@@ -15,12 +15,16 @@
  */
 #include "raspicat_speak/japanese_speak.hpp"
 
+#include <ros/package.h>
+
 #include <thread>
 
 namespace raspicat_speak {
 
 japanese_speak::japanese_speak() {
   getSpeakList();
+  getVoiceConfig();
+  speak();
   // run();
 }
 
@@ -82,7 +86,7 @@ void japanese_speak::getSpeakList() {
   pnh.getParam("topics", speak_list_param);
   // pnh.getParam("regex_topics", speak_list);
   ROS_ASSERT(speak_list_param.getType() == XmlRpc::XmlRpcValue::TypeArray);
-  ROS_INFO("member size: %i", (int)speak_list_param.size());
+  ROS_INFO("speak_list param size: %i", (int)speak_list_param.size());
 
   for (auto i = 0; i < speak_list_param.size(); ++i) {
     ROS_INFO("ROS Param Load speak_list: %s",
@@ -94,10 +98,24 @@ void japanese_speak::getSpeakList() {
     speak_list_map.insert(std::make_pair(
         static_cast<std::string>(speak_list_param[i]["topic"]), spl));
   }
-
-  std::cout << speak_list_map["/hoge6"].sentence << "\n";
 }
 
+void japanese_speak::getVoiceConfig() {
+  ros::NodeHandle pnh("~");
+  pnh.getParam("voice_config", voice_config_param);
+  ROS_ASSERT(speak_list_param.getType() == XmlRpc::XmlRpcValue::TypeArray);
+  ROS_INFO("voice_config param size: %i", (int)voice_config_param.size());
+
+  voc.additional_half_tone =
+      static_cast<double>(voice_config_param["additional_half_tone"]);
+  voc.all_pass_constant =
+      static_cast<double>(voice_config_param["all_pass_constant"]);
+  voc.speech_speed_rate =
+      static_cast<double>(voice_config_param["speech_speed_rate"]);
+  voc.voice_interval =
+      static_cast<double>(voice_config_param["voice_interval"]);
+  voc.voice_model = static_cast<std::string>(voice_config_param["voice_model"]);
+}
 void japanese_speak::run() {
   if (regex) {
     for (std::string const &topic : speak_list_topics)
@@ -112,7 +130,8 @@ void japanese_speak::run() {
   ros::NodeHandle nh;
   // check_master_timer = nh.createTimer(
   //     ros::Duration(1.0),
-  //     boost::bind(&japanese_speak::doCheckMaster, this, _1, boost::ref(nh)));
+  //     boost::bind(&japanese_speak::doCheckMaster, this, _1,
+  //     boost::ref(nh)));
 
   record_thread.join();
 }
@@ -136,12 +155,16 @@ void japanese_speak::speak() {
     exit(1);
   }
 
-  std::string sent;
-  sent += "echo 'ナビゲーションをしています' | open_jtalk -x ";
-  sent += "/var/lib/mecab/dic/open-jtalk/naist-jdic -m ";
-  sent += "mei/mei_normal.htsvoice ";
-  sent += "-r 1.0 -ow  /dev/stdout | mpv -";
-  if (!system(sent.c_str())) {
+  std::string open_jtalk =
+      "echo " + speak_list_map["/hoge3"].sentence + " | open_jtalk -x " +
+      "/var/lib/mecab/dic/open-jtalk/naist-jdic -m " +
+      ros::package::getPath("raspicat_speak") + "/voice_model/" +
+      voc.voice_model + " -r " + std::to_string(voc.speech_speed_rate) +
+      " -ow  /dev/stdout | mpv - & ";
+
+  std::cout << open_jtalk << "\n";
+
+  if (!system(open_jtalk.c_str())) {
   }
 }
 

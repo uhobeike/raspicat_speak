@@ -10,6 +10,7 @@ set(CMAKE_CXX_FLAGS "-std=c++14 -O3 ${CMAKE_CXX_FLAGS}")
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   topic_tools
+  roslib
 )
 
 ## System dependencies are found with CMake's conventions
@@ -24,7 +25,8 @@ find_package(catkin REQUIRED COMPONENTS
 ## catkin specific configuration ##
 ###################################
 catkin_package(
-  CATKIN_DEPENDS 
+  CATKIN_DEPENDS
+  roslib
 )
 
 include_directories(

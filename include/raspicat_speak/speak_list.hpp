@@ -24,4 +24,13 @@ public:
   std::string sentence;
   uint16_t priority;
 };
+
+class voice_config {
+public:
+  double additional_half_tone;
+  double all_pass_constant;
+  double speech_speed_rate;
+  double voice_interval;
+  std::string voice_model;
+};
 } // namespace raspicat_speak

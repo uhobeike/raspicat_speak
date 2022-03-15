@@ -40,9 +40,12 @@ private:
   void run();
 
   void getSpeakList();
+  void getVoiceConfig();
 
   XmlRpc::XmlRpcValue speak_list_param;
+  XmlRpc::XmlRpcValue voice_config_param;
   std::map<std::string, speak_list> speak_list_map;
+  voice_config voc;
 
   u_int16_t num_subscribers_;
   std::set<std::string> currently_registered_topics;

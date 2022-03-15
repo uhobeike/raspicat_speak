@@ -12,6 +12,8 @@
 
   <build_depend>roscpp</build_depend>
   <build_depend>topic_tools</build_depend>
+  <build_depend>roslib</build_depend>
   <exec_depend>roscpp</exec_depend>
   <exec_depend>topic_tools</exec_depend>
+  <exec_depend>roslib</exec_depend>
 </package>
