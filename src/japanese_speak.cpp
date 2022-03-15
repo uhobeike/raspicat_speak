@@ -79,19 +79,24 @@ bool japanese_speak::checkSubscribeTopics(std::string const &topic) {
 
 void japanese_speak::getSpeakList() {
   ros::NodeHandle pnh("~");
-  pnh.getParam("topics", speak_list);
+  pnh.getParam("topics", speak_list_param);
   // pnh.getParam("regex_topics", speak_list);
-  ROS_ASSERT(speak_list.getType() == XmlRpc::XmlRpcValue::TypeArray);
-  ROS_INFO("member size: %i", (int)speak_list.size());
+  ROS_ASSERT(speak_list_param.getType() == XmlRpc::XmlRpcValue::TypeArray);
+  ROS_INFO("member size: %i", (int)speak_list_param.size());
 
-  // for (std::pair<const std::__cxx11::string, XmlRpc::XmlRpcValue> &list :
-  //      speak_list) {
-  // std::cout << list.second["topic"] << "\n";
-  // }
+  for (auto i = 0; i < speak_list_param.size(); ++i) {
+    ROS_INFO("ROS Param Load speak_list: %s",
+             static_cast<std::string>(speak_list_param[i]["topic"]).c_str());
+    speak_list spl;
+    spl.topic = static_cast<std::string>(speak_list_param[i]["topic"]);
+    spl.sentence = static_cast<std::string>(speak_list_param[i]["sentence"]);
+    spl.priority = static_cast<int>(speak_list_param[i]["priority"]);
+    speak_list_map.insert(std::make_pair(
+        static_cast<std::string>(speak_list_param[i]["topic"]), spl));
+  }
 
-  std::string topic = static_cast<std::string>(speak_list[0]["topic"]);
-  ROS_INFO("%s", topic.c_str());
-} // namespace raspicat_speak
+  std::cout << speak_list_map["/hoge6"].sentence << "\n";
+}
 
 void japanese_speak::run() {
   if (regex) {

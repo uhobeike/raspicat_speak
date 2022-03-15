@@ -14,6 +14,8 @@
  *limitations under the License.
  */
 
+#include "raspicat_speak/speak_list.hpp"
+
 #include <ros/ros.h>
 
 #include <topic_tools/shape_shifter.h>
@@ -39,7 +41,8 @@ private:
 
   void getSpeakList();
 
-  XmlRpc::XmlRpcValue speak_list;
+  XmlRpc::XmlRpcValue speak_list_param;
+  std::map<std::string, speak_list> speak_list_map;
 
   u_int16_t num_subscribers_;
   std::set<std::string> currently_registered_topics;
