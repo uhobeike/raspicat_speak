@@ -1,21 +1,21 @@
 topics:
   - topic: "/hoge1"
-    sentence: "ナビゲーションが立ち上がりました"
+    sentence: "ナビゲーションが立ち上がりました　にあん"
     priority: 1
   - topic: "/hoge2"
-    sentence: "ナビゲーションをスタートします"
+    sentence: "ナビゲーションをスタートします　にあん"
     priority: 1
   - topic: "/hoge3"
-    sentence: "ウェイポイントを通過しました"
+    sentence: "ウェイポイントを通過しました　にあん"
     priority: 1
   - topic: "/hoge4"
-    sentence: "自己位置推定が不確かです"
+    sentence: "自己位置推定が不確かです　にあん"
     priority: 1
   - topic: "/hoge5"
-    sentence: "ゴールしました　ナビゲーションを終了します"
+    sentence: "ゴールしました　ナビゲーションを終了します　にあん"
     priority: 1
   - topic: "/hoge6"
-    sentence: "坂道モードに切り替わりました"
+    sentence: "坂道モードに切り替わりました　にあん"
     priority: 1
 
 #~~ To do ~~
