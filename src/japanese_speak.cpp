@@ -122,7 +122,8 @@ void japanese_speak::speak(std::string const &topic) {
       "/var/lib/mecab/dic/open-jtalk/naist-jdic -m " +
       ros::package::getPath("raspicat_speak") + "/voice_model/" +
       voc_.voice_model + " -r " + std::to_string(voc_.speech_speed_rate) +
-      " -ow  /dev/stdout | mpv - & ";
+      "-fm" + std::to_string(voc_.additional_half_tone) + "-a" +
+      std::to_string(voc_.all_pass_constant) + " -ow  /dev/stdout | mpv - & ";
 
   if (system(open_jtalk.c_str())) {
     ROS_ERROR("shell is not available on the system!");
