@@ -18,9 +18,9 @@ roscd raspicat_speak/scripts && ./install.sh
 
 ## How to use
 
-./config/speak_list.yamlにトリガーとなるtopicと喋らせたい日本語を設定します。
+[speak_list.yaml](./config/speak_list.yaml)にトリガーとなるtopicと喋らせたい日本語を設定します。
 
-以下のように実行すると、設定したtopicの日本語をスピーカーが喋ります。
+以下の通りに実行すると、speak_list.yamlで設定した日本語をスピーカーが喋ります。
 
 ```
 roslaunch raspicat_speak raspicat_speak.launch
