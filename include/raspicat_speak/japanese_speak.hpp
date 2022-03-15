@@ -34,13 +34,15 @@ private:
                 std::shared_ptr<ros::Subscriber> subscriber);
   std::shared_ptr<ros::Subscriber> subscribe(std::string const &topic);
   bool isSubscribed(std::string const &topic) const;
-  void speak();
+  void speak(std::string const &topic);
   void speakControl();
   void checkPriority(std::set<std::string>);
   void run();
 
   void getSpeakList();
   void getVoiceConfig();
+
+  ros::Timer check_master_timer_;
 
   XmlRpc::XmlRpcValue speak_list_param;
   XmlRpc::XmlRpcValue voice_config_param;

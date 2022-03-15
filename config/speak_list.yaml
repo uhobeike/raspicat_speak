@@ -17,6 +17,8 @@ topics:
   - topic: "/hoge6"
     sentence: "坂道モードに切り替わりました"
     priority: 1
+
+#~~ To do ~~
 # regex_topics:
 #   - /hoge(.*):
 #     sentence: "トピックをサブスクライブしました"
