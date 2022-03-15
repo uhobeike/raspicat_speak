@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- Arguments -->
+
+  <!-- Raspicat speak -->
+  <node pkg="raspicat_speak" type="raspicat_speak_node" name="raspicat_speak_node" 
+        clear_params="true" respawn="true" output="screen">
+    <rosparam command="load" file="$(find raspicat_speak)/config/speak_list.yaml"/>
+    <rosparam command="load" file="$(find raspicat_speak)/config/voice_config.yaml"/>
+  </node>
+</launch>

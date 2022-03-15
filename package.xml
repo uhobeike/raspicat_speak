@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>raspicat_speak</name>
+  <version>0.0.0</version>
+  <description>The raspicat_speak package</description>
+
+  <maintainer email="ikebe@todo.todo">ikebe</maintainer>
+
+  <license>Apache License 2.0</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>roscpp</build_depend>
+  <build_depend>topic_tools</build_depend>
+  <build_depend>roslib</build_depend>
+  <exec_depend>roscpp</exec_depend>
+  <exec_depend>topic_tools</exec_depend>
+  <exec_depend>roslib</exec_depend>
+</package>

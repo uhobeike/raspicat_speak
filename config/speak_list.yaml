@@ -1,0 +1,25 @@
+topics:
+  - topic: "/hoge1"
+    sentence: "ナビゲーションが立ち上がりました"
+    priority: 1
+  - topic: "/hoge2"
+    sentence: "ナビゲーションをスタートします"
+    priority: 1
+  - topic: "/hoge3"
+    sentence: "ウェイポイントを通過しました"
+    priority: 1
+  - topic: "/hoge4"
+    sentence: "自己位置推定が不確かです"
+    priority: 1
+  - topic: "/hoge5"
+    sentence: "ゴールしました　ナビゲーションを終了します"
+    priority: 1
+  - topic: "/hoge6"
+    sentence: "坂道モードに切り替わりました"
+    priority: 1
+
+#~~ To do ~~
+# regex_topics:
+#   - /hoge(.*):
+#     sentence: "トピックをサブスクライブしました"
+#     priority: 1
