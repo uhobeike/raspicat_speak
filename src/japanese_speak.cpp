@@ -21,10 +21,10 @@
 
 namespace raspicat_speak {
 
-japanese_speak::japanese_speak() {
+japanese_speak::japanese_speak() : {
   getSpeakList();
   getVoiceConfig();
-  speak();
+  createSubscriber();
   // run();
 }
 
@@ -37,49 +37,18 @@ japanese_speak::subscribe(std::string const &topic) {
   *sub = nh.subscribe<topic_tools::ShapeShifter>(
       topic, 100, boost::bind(&japanese_speak::callback, this, _1, topic, sub));
   currently_registered_topics.insert(topic);
-  num_subscribers_++;
 
   return sub;
 }
 
 bool japanese_speak::createSubscriber() {
-  ros::master::V_TopicInfo topics;
-  if (ros::master::getTopics(topics)) {
-    for (ros::master::TopicInfo const &t : topics) {
-      if (checkSubscribeTopics(t.name))
-        subscribe(t.name);
-    }
-  }
+  for (auto const &slm : speak_list_map)
+    subscribe(slm.second.topic);
 }
 
 void japanese_speak::callback(
     ros::MessageEvent<topic_tools::ShapeShifter const> msg_event,
     std::string const &topic, std::shared_ptr<ros::Subscriber> subscriber) {}
-
-bool japanese_speak::isSubscribed(std::string const &topic) const {
-  return currently_registered_topics.find(topic) !=
-         currently_registered_topics.end();
-}
-bool japanese_speak::checkSubscribeTopics(std::string const &topic) {
-  if (isSubscribed(topic)) {
-    return false;
-  }
-
-  if (regex) {
-    for (std::string const &regex_str : speak_list_topics) {
-      boost::regex e(regex_str);
-      boost::smatch what;
-      if (boost::regex_match(topic, what, e, boost::match_extra))
-        return true;
-    }
-  } else {
-    for (std::string const &t : speak_list_topics)
-      if (t == topic)
-        return true;
-  }
-
-  return false;
-}
 
 void japanese_speak::getSpeakList() {
   ros::NodeHandle pnh("~");
@@ -116,6 +85,7 @@ void japanese_speak::getVoiceConfig() {
       static_cast<double>(voice_config_param["voice_interval"]);
   voc.voice_model = static_cast<std::string>(voice_config_param["voice_model"]);
 }
+
 void japanese_speak::run() {
   if (regex) {
     for (std::string const &topic : speak_list_topics)
@@ -141,20 +111,12 @@ void japanese_speak::speakControl() {
   thread_local int current_id = 0;
   checkPriority(speak_now);
 
-  // for
+  // for check priority
   if (true)
     speak();
 }
 
 void japanese_speak::speak() {
-  auto ret = system(nullptr);
-  if (ret != 0)
-    ROS_INFO("shell is available on the system!");
-  else {
-    ROS_ERROR("shell is not available on the system!");
-    exit(1);
-  }
-
   std::string open_jtalk =
       "echo " + speak_list_map["/hoge3"].sentence + " | open_jtalk -x " +
       "/var/lib/mecab/dic/open-jtalk/naist-jdic -m " +
@@ -162,9 +124,8 @@ void japanese_speak::speak() {
       voc.voice_model + " -r " + std::to_string(voc.speech_speed_rate) +
       " -ow  /dev/stdout | mpv - & ";
 
-  std::cout << open_jtalk << "\n";
-
-  if (!system(open_jtalk.c_str())) {
+  if (system(open_jtalk.c_str())) {
+    ROS_ERROR("shell is not available on the system!");
   }
 }
 
