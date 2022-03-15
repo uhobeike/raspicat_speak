@@ -1,6 +1,3 @@
 #!/bin/bash -e
 
-sudo apt install \\
-  mpv
-  open-jtalk 
-  open-jtalk-mecab-naist-jdic
+sudo apt install -y mpv open-jtalk  open-jtalk-mecab-naist-jdic
