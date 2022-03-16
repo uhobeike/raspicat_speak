@@ -40,7 +40,7 @@ japanese_speak::subscribe(std::string const &topic) {
   return sub;
 }
 
-bool japanese_speak::createSubscriber() {
+void japanese_speak::createSubscriber() {
   ros::master::V_TopicInfo topics;
   if (ros::master::getTopics(topics)) {
     for (ros::master::TopicInfo const &t : topics) {

@@ -27,7 +27,7 @@ namespace raspicat_speak {
 
 class japanese_speak {
 private:
-  bool createSubscriber();
+  void createSubscriber();
   bool checkSubscribeTopics(std::string const &topic);
   void callback(ros::MessageEvent<topic_tools::ShapeShifter const> msg_event,
                 std::string const &topic,
