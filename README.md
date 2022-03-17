@@ -26,3 +26,7 @@ roscd raspicat_speak/scripts && ./install.sh
 roslaunch raspicat_speak raspicat_speak.launch
 rostopic pub  -l /hoge2 std_msgs/String "data: 'hogehoge'" 
 ```
+
+## Examples of Use
+
+[![](https://img.youtube.com/vi/fEhVoq0taXg/0.jpg)](https://www.youtube.com/watch?v=fEhVoq0taXg)
