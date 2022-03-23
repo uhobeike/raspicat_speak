@@ -16,21 +16,25 @@
 
 #include <ros/ros.h>
 
-namespace raspicat_speak {
-
-class speak_list {
-public:
+namespace raspicat_speak
+{
+class speak_list
+{
+ public:
   std::string topic;
   std::string sentence;
+  std::string voice_model;
+  double speak_interval;
+  std::string stop_trigger;
   uint16_t priority;
 };
 
-class voice_config {
-public:
+class voice_config
+{
+ public:
   double additional_half_tone;
   double all_pass_constant;
   double speech_speed_rate;
-  double voice_interval;
   std::string voice_model;
 };
-} // namespace raspicat_speak
+}  // namespace raspicat_speak

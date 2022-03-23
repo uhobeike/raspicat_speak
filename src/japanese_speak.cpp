@@ -19,11 +19,11 @@
 
 #include <thread>
 
-namespace raspicat_speak {
-
-japanese_speak::japanese_speak(ros::NodeHandle &nodeHandle,
-                               ros::NodeHandle &private_nodeHandle)
-    : nh_(nodeHandle), pnh_(private_nodeHandle) {
+namespace raspicat_speak
+{
+japanese_speak::japanese_speak(ros::NodeHandle &nodeHandle, ros::NodeHandle &private_nodeHandle)
+    : nh_(nodeHandle), pnh_(private_nodeHandle)
+{
   getSpeakList();
   getVoiceConfig();
   run();
@@ -31,32 +31,48 @@ japanese_speak::japanese_speak(ros::NodeHandle &nodeHandle,
 
 japanese_speak::~japanese_speak() {}
 
-std::shared_ptr<ros::Subscriber>
-japanese_speak::subscribe(std::string const &topic) {
-  std::shared_ptr<ros::Subscriber> sub(new ros::Subscriber);
+std::shared_ptr<ros::Subscriber> japanese_speak::subscribe(std::string const &topic,
+                                                           bool interval_speak)
+{
+  std::shared_ptr<ros::Subscriber> sub(new ros::Subscriber), int_sub(new ros::Subscriber);
   *sub = nh_.subscribe<topic_tools::ShapeShifter>(
       topic, 100, boost::bind(&japanese_speak::callback, this, _1, topic, sub));
+  if (interval_speak)
+  {
+    *int_sub = nh_.subscribe<topic_tools::ShapeShifter>(
+        speak_list_map_[topic].stop_trigger, 100,
+        boost::bind(&japanese_speak::stopTriggerCallback, this, _1,
+                    speak_list_map_[topic].stop_trigger, int_sub));
+  }
   currently_registered_topics_.insert(topic);
+
   return sub;
 }
 
-void japanese_speak::createSubscriber() {
+void japanese_speak::createSubscriber()
+{
   ros::master::V_TopicInfo topics;
-  if (ros::master::getTopics(topics)) {
-    for (ros::master::TopicInfo const &t : topics) {
-      if (checkSubscribeTopics(t.name))
+  if (ros::master::getTopics(topics))
+  {
+    for (ros::master::TopicInfo const &t : topics)
+    {
+      if (checkSubscribeTopics(t.name) && speak_list_map_[t.name].speak_interval)
+        subscribe(t.name, true);
+      else if (checkSubscribeTopics(t.name))
         subscribe(t.name);
     }
   }
 }
 
-bool japanese_speak::isSubscribed(std::string const &topic) const {
-  return currently_registered_topics_.find(topic) !=
-         currently_registered_topics_.end();
+bool japanese_speak::isSubscribed(std::string const &topic) const
+{
+  return currently_registered_topics_.find(topic) != currently_registered_topics_.end();
 }
 
-bool japanese_speak::checkSubscribeTopics(std::string const &topic) {
-  if (isSubscribed(topic)) {
+bool japanese_speak::checkSubscribeTopics(std::string const &topic)
+{
+  if (isSubscribed(topic))
+  {
     return false;
   }
 
@@ -70,76 +86,127 @@ bool japanese_speak::checkSubscribeTopics(std::string const &topic) {
   // }
 
   for (auto const &slm : speak_list_map_)
-    if (slm.second.topic == topic)
-      return true;
+    if (slm.second.topic == topic) return true;
 
   return false;
 }
 
-void japanese_speak::callback(
-    ros::MessageEvent<topic_tools::ShapeShifter const> msg_event,
-    std::string const &topic, std::shared_ptr<ros::Subscriber> subscriber) {
+void japanese_speak::callback(ros::MessageEvent<topic_tools::ShapeShifter const> msg_event,
+                              std::string const &topic, std::shared_ptr<ros::Subscriber> subscriber)
+{
   ROS_INFO("Callback function: %s", topic.c_str());
   speak(topic);
 }
 
-void japanese_speak::getSpeakList() {
+void japanese_speak::stopTriggerCallback(
+    ros::MessageEvent<topic_tools::ShapeShifter const> msg_event, std::string const &topic,
+    std::shared_ptr<ros::Subscriber> subscriber)
+{
+  speak_interval_map_[topic].reset();
+  speak_interval_map_.erase(topic);
+  subscriber.reset();
+}
+
+void japanese_speak::getSpeakList()
+{
   pnh_.getParam("topics", speak_list_param_);
   // pnh.getParam("regex_topics", speak_list);
   ROS_ASSERT(speak_list_param_.getType() == XmlRpc::XmlRpcValue::TypeArray);
 
-  for (auto i = 0; i < speak_list_param_.size(); ++i) {
+  for (auto i = 0; i < speak_list_param_.size(); ++i)
+  {
     ROS_INFO("ROS Param Load speak_list: %s",
              static_cast<std::string>(speak_list_param_[i]["topic"]).c_str());
     speak_list spl;
     spl.topic = static_cast<std::string>(speak_list_param_[i]["topic"]);
     spl.sentence = static_cast<std::string>(speak_list_param_[i]["sentence"]);
+    spl.voice_model = static_cast<std::string>(speak_list_param_[i]["voice_model"]);
+    spl.speak_interval = static_cast<double>(speak_list_param_[i]["speak_interval"]);
+    spl.stop_trigger = static_cast<std::string>(speak_list_param_[i]["stop_trigger"]);
     spl.priority = static_cast<int>(speak_list_param_[i]["priority"]);
-    speak_list_map_.insert(std::make_pair(
-        static_cast<std::string>(speak_list_param_[i]["topic"]), spl));
+    speak_list_map_.insert(
+        std::make_pair(static_cast<std::string>(speak_list_param_[i]["topic"]), spl));
   }
 }
 
-void japanese_speak::getVoiceConfig() {
+void japanese_speak::getVoiceConfig()
+{
   pnh_.getParam("voice_config", voice_config_param_);
   ROS_ASSERT(voice_config_param_.getType() == XmlRpc::XmlRpcValue::TypeStruct);
 
-  voc_.additional_half_tone =
-      static_cast<double>(voice_config_param_["additional_half_tone"]);
-  voc_.all_pass_constant =
-      static_cast<double>(voice_config_param_["all_pass_constant"]);
-  voc_.speech_speed_rate =
-      static_cast<double>(voice_config_param_["speech_speed_rate"]);
-  voc_.voice_interval =
-      static_cast<double>(voice_config_param_["voice_interval"]);
-  voc_.voice_model =
-      static_cast<std::string>(voice_config_param_["voice_model"]);
+  voc_.additional_half_tone = static_cast<double>(voice_config_param_["additional_half_tone"]);
+  voc_.all_pass_constant = static_cast<double>(voice_config_param_["all_pass_constant"]);
+  voc_.speech_speed_rate = static_cast<double>(voice_config_param_["speech_speed_rate"]);
+  voc_.voice_model = static_cast<std::string>(voice_config_param_["voice_model"]);
 }
 
-void japanese_speak::speak(std::string const &topic) {
-  std::string open_jtalk =
-      "echo " + speak_list_map_[topic].sentence + " | open_jtalk -x " +
-      "/var/lib/mecab/dic/open-jtalk/naist-jdic -m " +
-      ros::package::getPath("raspicat_speak") + "/voice_model/" +
-      voc_.voice_model + " -r " + std::to_string(voc_.speech_speed_rate) +
-      "-fm" + std::to_string(voc_.additional_half_tone) + "-a" +
-      std::to_string(voc_.all_pass_constant) + " -ow  /dev/stdout | aplay & ";
+void japanese_speak::speak(std::string const &topic)
+{
+  if (!speak_list_map_[topic].speak_interval)
+  {
+    std::string open_jtalk =
+        "echo " + speak_list_map_[topic].sentence + " | open_jtalk -x " +
+        "/var/lib/mecab/dic/open-jtalk/naist-jdic -m " + ros::package::getPath("raspicat_speak") +
+        "/voice_model/" + voc_.voice_model + " -r " + std::to_string(voc_.speech_speed_rate) +
+        "-fm" + std::to_string(voc_.additional_half_tone) + "-a" +
+        std::to_string(voc_.all_pass_constant) + " -ow  /dev/stdout | aplay & ";
 
-  if (system(open_jtalk.c_str())) {
+    if (system(open_jtalk.c_str()))
+    {
+      ROS_ERROR("shell is not available on the system!");
+    }
+  }
+  else
+  {
+    createIntervalTimer(topic);
+  }
+}
+
+void japanese_speak::createIntervalTimer(std::string const &topic)
+{
+  ros::Duration interval;
+  if (speak_list_map_[topic].speak_interval == 0.0)
+  {
+    interval.fromSec(0.0);
+    ROS_WARN("The rate for publishing the value of cmd_vel is 0.");
+  }
+  else
+  {
+    interval.fromSec(speak_list_map_[topic].speak_interval);
+  }
+  ROS_ASSERT(!interval.isZero());
+
+  std::shared_ptr<ros::Timer> timer(new ros::Timer);
+  *timer = nh_.createTimer(interval, boost::bind(&japanese_speak::speakInterval, this, _1, topic));
+  speak_interval_map_.insert(std::make_pair(speak_list_map_[topic].stop_trigger, timer));
+}
+
+void japanese_speak::speakInterval(const ros::TimerEvent &e, std::string const &topic)
+{
+  std::string open_jtalk = "echo " + speak_list_map_[topic].sentence + " | open_jtalk -x " +
+                           "/var/lib/mecab/dic/open-jtalk/naist-jdic -m " +
+                           ros::package::getPath("raspicat_speak") + "/voice_model/" +
+                           voc_.voice_model + " -r " + std::to_string(voc_.speech_speed_rate) +
+                           "-fm" + std::to_string(voc_.additional_half_tone) + "-a" +
+                           std::to_string(voc_.all_pass_constant) + " -ow  /dev/stdout | aplay ";
+
+  if (system(open_jtalk.c_str()))
+  {
     ROS_ERROR("shell is not available on the system!");
   }
 }
 
-void japanese_speak::run() {
+void japanese_speak::run()
+{
   // std::thread record_thread;
   // record_thread = std::thread(boost::bind(&japanese_speak::speakControl,
   // this));
 
-  check_master_timer_ = nh_.createTimer(
-      ros::Duration(1.0), boost::bind(&japanese_speak::createSubscriber, this));
+  check_master_timer_ =
+      nh_.createTimer(ros::Duration(1.0), boost::bind(&japanese_speak::createSubscriber, this));
 
   // record_thread.join();
 }
 
 void japanese_speak::checkPriority(std::set<std::string>) {}
-} // namespace raspicat_speak
+}  // namespace raspicat_speak
