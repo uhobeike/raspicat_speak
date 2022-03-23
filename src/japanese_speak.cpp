@@ -102,7 +102,6 @@ void japanese_speak::stopTriggerCallback(
     ros::MessageEvent<topic_tools::ShapeShifter const> msg_event, std::string const &topic,
     std::shared_ptr<ros::Subscriber> subscriber)
 {
-  ROS_ERROR("stop_triger");
   speak_interval_map_[topic].reset();
   speak_interval_map_.erase(topic);
   subscriber.reset();
@@ -143,7 +142,6 @@ void japanese_speak::getVoiceConfig()
 
 void japanese_speak::speak(std::string const &topic)
 {
-  std::cout << speak_list_map_[topic].speak_interval << "\n";
   if (!speak_list_map_[topic].speak_interval)
   {
     std::string open_jtalk =
@@ -174,16 +172,29 @@ void japanese_speak::createIntervalTimer(std::string const &topic)
   }
   else
   {
-    interval.fromSec(1.0 / speak_list_map_[topic].speak_interval);
+    interval.fromSec(speak_list_map_[topic].speak_interval);
   }
   ROS_ASSERT(!interval.isZero());
 
   std::shared_ptr<ros::Timer> timer(new ros::Timer);
-  *timer = nh_.createTimer(interval, boost::bind(&japanese_speak::speakInterval, this));
+  *timer = nh_.createTimer(interval, boost::bind(&japanese_speak::speakInterval, this, _1, topic));
   speak_interval_map_.insert(std::make_pair(speak_list_map_[topic].stop_trigger, timer));
 }
 
-void japanese_speak::speakInterval() { ROS_INFO("Create new timer:  Interval: "); }
+void japanese_speak::speakInterval(const ros::TimerEvent &e, std::string const &topic)
+{
+  std::string open_jtalk = "echo " + speak_list_map_[topic].sentence + " | open_jtalk -x " +
+                           "/var/lib/mecab/dic/open-jtalk/naist-jdic -m " +
+                           ros::package::getPath("raspicat_speak") + "/voice_model/" +
+                           voc_.voice_model + " -r " + std::to_string(voc_.speech_speed_rate) +
+                           "-fm" + std::to_string(voc_.additional_half_tone) + "-a" +
+                           std::to_string(voc_.all_pass_constant) + " -ow  /dev/stdout | aplay ";
+
+  if (system(open_jtalk.c_str()))
+  {
+    ROS_ERROR("shell is not available on the system!");
+  }
+}
 
 void japanese_speak::run()
 {

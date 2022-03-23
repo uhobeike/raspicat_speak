@@ -38,7 +38,7 @@ class japanese_speak
   std::shared_ptr<ros::Subscriber> subscribe(std::string const &topic, bool interval_speak = false);
   bool isSubscribed(std::string const &topic) const;
   void speak(std::string const &topic);
-  void speakInterval();
+  void speakInterval(const ros::TimerEvent &e, std::string const &topic);
   void speakControl();
   void checkPriority(std::set<std::string>);
   void run();
