@@ -23,18 +23,22 @@
 #include <boost/regex.hpp>
 #include <mutex>
 
-namespace raspicat_speak {
-
-class japanese_speak {
-private:
+namespace raspicat_speak
+{
+class japanese_speak
+{
+ private:
   void createSubscriber();
+  void createIntervalTimer(std::string const &topic);
   bool checkSubscribeTopics(std::string const &topic);
   void callback(ros::MessageEvent<topic_tools::ShapeShifter const> msg_event,
-                std::string const &topic,
-                std::shared_ptr<ros::Subscriber> subscriber);
-  std::shared_ptr<ros::Subscriber> subscribe(std::string const &topic);
+                std::string const &topic, std::shared_ptr<ros::Subscriber> subscriber);
+  void stopTriggerCallback(ros::MessageEvent<topic_tools::ShapeShifter const> msg_event,
+                           std::string const &topic, std::shared_ptr<ros::Subscriber> subscriber);
+  std::shared_ptr<ros::Subscriber> subscribe(std::string const &topic, bool interval_speak = false);
   bool isSubscribed(std::string const &topic) const;
   void speak(std::string const &topic);
+  void speakInterval();
   void speakControl();
   void checkPriority(std::set<std::string>);
   void run();
@@ -48,6 +52,7 @@ private:
   XmlRpc::XmlRpcValue speak_list_param_;
   XmlRpc::XmlRpcValue voice_config_param_;
   std::map<std::string, speak_list> speak_list_map_;
+  std::map<std::string, std::shared_ptr<ros::Timer>> speak_interval_map_;
   voice_config voc_;
 
   std::set<std::string> currently_registered_topics_;
@@ -57,9 +62,8 @@ private:
 
   std::mutex mtx_;
 
-public:
-  japanese_speak(ros::NodeHandle &nodeHandle,
-                 ros::NodeHandle &private_nodeHandle);
+ public:
+  japanese_speak(ros::NodeHandle &nodeHandle, ros::NodeHandle &private_nodeHandle);
   ~japanese_speak();
 };
-} // namespace raspicat_speak
+}  // namespace raspicat_speak
