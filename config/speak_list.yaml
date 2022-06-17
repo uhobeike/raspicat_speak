@@ -19,9 +19,6 @@ topics:
     priority: 1
   - topic: "/hoge7"
     sentence: "ピコン　ピコン　ロボットが通ります"
-    voice_model: "mei_happy.htsvoice"
-    speak_interval: 5.0
-    stop_trigger: "/waypoint_passed"
     priority: 1
 
 #~~ To do ~~
